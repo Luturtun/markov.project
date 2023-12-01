@@ -45,15 +45,13 @@ def mh_2(X, theta, y, beta, num_iter):
         counter += 1
         if counter == 50000:
             break
-
-        idx_i = np.random.randint(len(theta))
-        idx_j = np.random.randint(len(theta))
-        while theta[idx_i] == theta[idx_j]:
-            idx_i = np.random.randint(len(theta))
-            idx_j = np.random.randint(len(theta))
+        zero_indices = np.where(theta == 0)[0]
+        one_indices = np.where(theta == 1)[0]
+        zero_index = np.random.choice(zero_indices)
+        one_index = np.random.choice(one_indices)
         theta_proposed = theta.copy()
-        theta_proposed[idx_i] = theta[idx_j]
-        theta_proposed[idx_j] = theta[idx_i]
+        theta_proposed[zero_index] = 1
+        theta_proposed[one_index] = 0
         f_theta_proposed = f_1_5(X, theta_proposed, y)
         f_theta = f_1_5(X, theta, y)
         if f_theta_proposed < f_theta:
