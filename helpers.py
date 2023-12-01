@@ -45,6 +45,7 @@ def mh_2(X, theta, y, beta, num_iter):
         counter += 1
         if counter == 50000:
             break
+
         idx_i = np.random.randint(len(theta))
         idx_j = np.random.randint(len(theta))
         while theta[idx_i] == theta[idx_j]:
