@@ -38,6 +38,36 @@ def mh_1_5(X, theta, y, beta, num_iter):
     return theta, avg_f_difference/difference_counter
 
 
+def mh_2(X, theta, y, beta, num_iter):
+    m = X.shape[0]
+    counter = 0
+    for i in range(num_iter):
+        counter += 1
+        if counter == 50000:
+            break
+        idx_i = np.random.randint(len(theta))
+        idx_j = np.random.randint(len(theta))
+        while theta[idx_i] == theta[idx_j]:
+            idx_i = np.random.randint(len(theta))
+            idx_j = np.random.randint(len(theta))
+        theta_proposed = theta.copy()
+        theta_proposed[idx_i] = theta[idx_j]
+        theta_proposed[idx_j] = theta[idx_i]
+        f_theta_proposed = f_1_5(X, theta_proposed, y)
+        f_theta = f_1_5(X, theta, y)
+        if f_theta_proposed < f_theta:
+            theta = theta_proposed
+            counter = 0
+        else:
+            acceptance_probability = np.exp(-beta * (f_theta_proposed - f_theta))
+            if acceptance_probability >= np.random.uniform(0, 1):
+                theta = theta_proposed
+                counter = 0
+        if i%5000 == 0:
+            print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
+    return theta
+
+
 def simulated_annealing(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num_iter):
 
     m = X.shape[0]
@@ -72,6 +102,40 @@ def simulated_annealing(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num
                 counter = 0
         if i%5000 == 0:
             print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
+    return theta
+
+
+def simulated_annealing_cont(X, theta, y, beta_2m_start, beta_2m_end, num_iter):
+
+    m = X.shape[0]
+    beta_start = beta_2m_start / (2 * m)
+    beta_end = beta_2m_end / (2 * m)
+
+    ratio = (beta_end / beta_start) ** (1 / (num_iter - 1))
+
+    beta = beta_start
+    counter = 0
+    for i in range(num_iter):
+        counter += 1
+        if counter == 50000:
+            break
+        idx = np.random.randint(len(theta))
+        theta_proposed = theta.copy()
+        theta_proposed[idx] = 1 - theta_proposed[idx]
+        f_theta_proposed = f_1_5(X, theta_proposed, y)
+        f_theta = f_1_5(X, theta, y)
+
+        if f_theta_proposed < f_theta:
+            theta = theta_proposed
+            counter = 0
+        else:
+            acceptance_probability = np.exp(-beta * (f_theta_proposed - f_theta))
+            if acceptance_probability >= np.random.uniform(0, 1):
+                theta = theta_proposed
+                counter = 0
+        if i%5000 == 0:
+            print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
+        beta = beta*ratio
     return theta
 
 
