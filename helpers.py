@@ -257,8 +257,13 @@ def mse_1_5(theta_true, theta_predicted):
     return (2/len(theta_true)) * np.sum((theta_predicted - theta_true)**2)
 
 
+def mse_sparse(theta_true, theta_predicted, s):
+    return (1/(2*s)) * np.sum((theta_predicted - theta_true)**2)
+
+
 def accuracy_1_5(theta_true, theta_predicted):
     return np.sum(theta_predicted == theta_true) / len(theta_true)
+
 
 def geometric_sequence(start, end, length):
     ratio = (end / start) ** (1 / (length - 1))
