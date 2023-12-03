@@ -97,11 +97,11 @@ def mh_3(X, theta, y, beta, num_iter):
             print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
     return theta
 
-def simulated_annealing_mh_3(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num_iter):
+def simulated_annealing_mh_3(X, theta, y, beta_m_over_5_start, beta_m_over_5_end, seq_length, num_iter):
 
     m = X.shape[0]
-    beta_start = beta_2m_start / (2 * m)
-    beta_end = beta_2m_end / (2 * m)
+    beta_start = beta_m_over_5_start * (5 / m)
+    beta_end = beta_m_over_5_end * (5 / m)
 
     result_sequence = geometric_sequence(beta_start, beta_end, seq_length)
     seq_length = len(result_sequence)
@@ -139,11 +139,11 @@ def simulated_annealing_mh_3(X, theta, y, beta_2m_start, beta_2m_end, seq_length
     return theta
 
 
-def simulated_annealing_mh_2(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num_iter):
+def simulated_annealing_mh_2(X, theta, y, beta_4m_start, beta_4m_end, seq_length, num_iter):
 
     m = X.shape[0]
-    beta_start = beta_2m_start / (2 * m)
-    beta_end = beta_2m_end / (2 * m)
+    beta_start = beta_4m_start / (4 * m)
+    beta_end = beta_4m_end / (4 * m)
 
     result_sequence = geometric_sequence(beta_start, beta_end, seq_length)
     seq_length = len(result_sequence)
@@ -251,6 +251,39 @@ def simulated_annealing_cont(X, theta, y, beta_2m_start, beta_2m_end, num_iter):
             print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
         beta = beta*ratio
     return theta
+
+
+def mh_3_avg_diff(X, theta, y, beta, num_iter):
+    m = X.shape[0]
+    counter = 0
+    diff_counter = 0
+    diff_sum = 0
+    for i in range(num_iter):
+        counter += 1
+        if counter == 50000:
+            break
+        zero_indices = np.where(theta == 0)[0]
+        one_indices = np.where(theta == 1)[0]
+        zero_index = np.random.choice(zero_indices)
+        one_index = np.random.choice(one_indices)
+        theta_proposed = theta.copy()
+        theta_proposed[zero_index] = 1
+        theta_proposed[one_index] = 0
+        f_theta_proposed = f_3(X, theta_proposed, y)
+        f_theta = f_3(X, theta, y)
+        if f_theta_proposed < f_theta:
+            theta = theta_proposed
+            counter = 0
+        else:
+            diff_counter += 1
+            diff_sum += f_theta_proposed - f_theta
+            acceptance_probability = np.exp(-beta * (f_theta_proposed - f_theta))
+            if acceptance_probability >= np.random.uniform(0, 1):
+                theta = theta_proposed
+                counter = 0
+        if i%5000 == 0:
+            print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
+    return diff_sum/diff_counter
 
 
 def mse_1_5(theta_true, theta_predicted):
