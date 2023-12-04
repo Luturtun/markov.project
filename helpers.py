@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 
 
-def f_1_5(X, theta, y):
+def f_1(X, theta, y):
     return np.sum((y - np.dot(X, theta)) ** 2)
 
 
@@ -14,7 +14,7 @@ def f_3(X, theta, y):
     return neg_log_likelihood
 
 
-def mh_1_5(X, theta, y, beta, num_iter):
+def mh_1(X, theta, y, beta, num_iter):
     m = X.shape[0]
     counter = 0
     for i in range(num_iter):
@@ -24,8 +24,8 @@ def mh_1_5(X, theta, y, beta, num_iter):
         idx = np.random.randint(len(theta))
         theta_proposed = theta.copy()
         theta_proposed[idx] = 1 - theta_proposed[idx]
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
 
         if f_theta_proposed < f_theta:
             theta = theta_proposed
@@ -54,8 +54,8 @@ def mh_2(X, theta, y, beta, num_iter):
         theta_proposed = theta.copy()
         theta_proposed[zero_index] = 1
         theta_proposed[one_index] = 0
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
         if f_theta_proposed < f_theta:
             theta = theta_proposed
             counter = 0
@@ -165,8 +165,8 @@ def simulated_annealing_mh_2(X, theta, y, beta_4m_start, beta_4m_end, seq_length
         theta_proposed = theta.copy()
         theta_proposed[zero_index] = 1
         theta_proposed[one_index] = 0
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
 
         if f_theta_proposed < f_theta:
             theta = theta_proposed
@@ -181,7 +181,7 @@ def simulated_annealing_mh_2(X, theta, y, beta_4m_start, beta_4m_end, seq_length
     return theta
 
 
-def simulated_annealing(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num_iter):
+def simulated_annealing_mh_1(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num_iter):
 
     m = X.shape[0]
     beta_start = beta_2m_start / (2 * m)
@@ -203,8 +203,8 @@ def simulated_annealing(X, theta, y, beta_2m_start, beta_2m_end, seq_length, num
         idx = np.random.randint(len(theta))
         theta_proposed = theta.copy()
         theta_proposed[idx] = 1 - theta_proposed[idx]
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
 
         if f_theta_proposed < f_theta:
             theta = theta_proposed
@@ -236,8 +236,8 @@ def simulated_annealing_cont(X, theta, y, beta_2m_start, beta_2m_end, num_iter):
         idx = np.random.randint(len(theta))
         theta_proposed = theta.copy()
         theta_proposed[idx] = 1 - theta_proposed[idx]
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
 
         if f_theta_proposed < f_theta:
             theta = theta_proposed
@@ -286,16 +286,12 @@ def mh_3_avg_diff(X, theta, y, beta, num_iter):
     return diff_sum/diff_counter
 
 
-def mse_1_5(theta_true, theta_predicted):
+def mse_1(theta_true, theta_predicted):
     return (2/len(theta_true)) * np.sum((theta_predicted - theta_true)**2)
 
 
 def mse_sparse(theta_true, theta_predicted, s):
     return (1/(2*s)) * np.sum((theta_predicted - theta_true)**2)
-
-
-def accuracy_1_5(theta_true, theta_predicted):
-    return np.sum(theta_predicted == theta_true) / len(theta_true)
 
 
 def geometric_sequence(start, end, length):
