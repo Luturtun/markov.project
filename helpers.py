@@ -307,36 +307,82 @@ def mh_competition(X, theta, y, beta, num_iter):
         if counter == 50000:
             break
 
+        zero_indices = np.where(theta == 0)[0]
+        nonzero_indices = np.where((theta == 1) or (theta == 2))[0]
+
+        zero_index = np.random.choice(zero_indices)
+        nonzero_index = np.random.choice(nonzero_indices)
+        theta_proposed = theta.copy()
+        theta_proposed[zero_index] = np.random.choice([1, 2])
+        theta_proposed[nonzero_index] = 0
+
+
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
+        if f_theta_proposed < f_theta:
+            theta = theta_proposed
+            counter = 0
+        else:
+            acceptance_probability = np.exp(-beta * (f_theta_proposed - f_theta))
+            if acceptance_probability >= np.random.uniform(0, 1):
+                theta = theta_proposed
+                counter = 0
+        if i % 5000 == 0:
+            print(f"m = {m}, beta = {beta}, Iteration #: {i}, f_theta = {f_theta}")
+    return theta
+
+def mh_competition_SA(X, theta, y, beta_4m_start, beta_4m_end, seq_length, num_iter):
+    m = X.shape[0]
+    counter = 0
+
+    beta_start = beta_4m_start / (4 * m)
+    beta_end = beta_4m_end / (4 * m)
+
+    result_sequence = geometric_sequence(beta_start, beta_end, seq_length)
+    seq_length = len(result_sequence)
+
+    beta_index = 0
+    beta = result_sequence[beta_index]
+
+    for i in range(num_iter):
+        counter += 1
+        if counter == 50000:
+            break
+        if i != 0 and i % (int(num_iter/seq_length)) == 0:
+            beta_index += 1
+            beta = result_sequence[beta_index]
+
+        one_indices = np.where(theta == 1)[0]
+        two_indices = np.where(theta == 2)[0]
+
         case_array = []
-        if np.sum(theta == 1) > 0:
+        if len(one_indices) > 0:
             case_array.append(1)
-        if np.sum(theta == 2) > 0:
+        if len(two_indices) > 0:
             case_array.append(2)
-        if np.sum(theta == 1) > 0 and np.sum(theta == 2) > 0:
+        if len(one_indices) > 0 and len(two_indices) > 0:
             case_array.append(3)
 
         case = np.random.choice(case_array)
         if case == 1:
             zero_indices = np.where(theta == 0)[0]
-            one_indices = np.where(theta == 1)[0]
             zero_index = np.random.choice(zero_indices)
             one_index = np.random.choice(one_indices)
 
             theta_proposed = theta.copy()
             theta_proposed[zero_index] = 1
             theta_proposed[one_index] = 0
+
         elif case == 2:
             zero_indices = np.where(theta == 0)[0]
-            two_indices = np.where(theta == 2)[0]
             zero_index = np.random.choice(zero_indices)
             two_index = np.random.choice(two_indices)
 
             theta_proposed = theta.copy()
             theta_proposed[zero_index] = 2
             theta_proposed[two_index] = 0
+
         else:
-            one_indices = np.where(theta == 1)[0]
-            two_indices = np.where(theta == 2)[0]
             one_index = np.random.choice(one_indices)
             two_index = np.random.choice(two_indices)
 
@@ -344,8 +390,9 @@ def mh_competition(X, theta, y, beta, num_iter):
             theta_proposed[one_index] = 2
             theta_proposed[two_index] = 1
 
-        f_theta_proposed = f_1_5(X, theta_proposed, y)
-        f_theta = f_1_5(X, theta, y)
+        f_theta_proposed = f_1(X, theta_proposed, y)
+        f_theta = f_1(X, theta, y)
+
         if f_theta_proposed < f_theta:
             theta = theta_proposed
             counter = 0
