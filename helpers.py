@@ -308,7 +308,7 @@ def mh_competition(X, theta, y, beta, num_iter):
             break
 
         zero_indices = np.where(theta == 0)[0]
-        nonzero_indices = np.where((theta == 1) or (theta == 2))[0]
+        nonzero_indices = np.where((theta == 1) | (theta == 2))[0]
 
         zero_index = np.random.choice(zero_indices)
         nonzero_index = np.random.choice(nonzero_indices)
